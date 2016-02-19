@@ -1,11 +1,19 @@
 Tasks = new Mongo.Collection("tasks");
  
 if (Meteor.isClient) {
-  // This code only runs on the client
+
   Template.body.helpers({
     tasks: function () {
-      // Show newest tasks at the top
-      return Tasks.find({}, {sort: {createdAt: -1}});
+      if (Session.get("hideCompleted")) {
+       
+        return Tasks.find({checked: {$ne: true}}, {sort: {createdAt: -1}});
+      } else {
+        
+        return Tasks.find({}, {sort: {createdAt: -1}});
+      }
+    },
+    hideCompleted: function () {
+      return Session.get("hideCompleted");
     }
   });
  
@@ -38,5 +46,9 @@ if (Meteor.isClient) {
     "click .delete": function () {
       Tasks.remove(this._id);
     }
+  });
+ 
+  Accounts.ui.config({
+    passwordSignupFields: "USERNAME_ONLY"
   });
 }
